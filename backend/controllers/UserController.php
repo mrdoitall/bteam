@@ -7,6 +7,7 @@ namespace backend\controllers;
 use common\models\Paging;
 use common\models\User;
 use common\models\UserLog;
+use Firebase\JWT\JWT;
 
 class UserController extends BaseController
 {
@@ -42,6 +43,29 @@ class UserController extends BaseController
         $logs = $userCond->with('user')->asArray()->all();
         return $this->response(true, $logs, null, null, 200, $pagingData);
 
+    }
+
+    function actionApiToken()
+    {
+        $password = \Yii::$app->request->post('password');
+        $user = User::findOne(\Yii::$app->user->getId());
+        if (!$user->validatePassword($password)) {
+            return $this->responseMessage(false, 'Password is incorrect');
+        }
+
+        $authKey = JWT::encode(
+            [
+                'id' => $user->id,
+                'username' => $user->username,
+                'password_hash' => $user->password_hash,
+                'user_agent' => \Yii::$app->request->getUserAgent(),
+                'expired_at' => (time() + (86400 * 365)),
+                'refresh_token' => \Yii::$app->security->generateRandomString(32)
+            ],
+            \Yii::$app->params['backendAuthKey']
+        );
+
+        return $this->response(true, ['token' => $authKey], 'Get Token Successfully');
     }
 
     function actionLoginHistory()
