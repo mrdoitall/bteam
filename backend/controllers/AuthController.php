@@ -3,6 +3,7 @@
 namespace backend\controllers;
 
 
+use common\models\db\UserLog;
 use common\models\PublicUser;
 use common\models\User;
 use common\models\UserAccessToken;
@@ -35,6 +36,13 @@ class AuthController extends BaseController
         }
 
         $publicUser = $user->getPublicUser();
+
+        $userLog = new \common\models\UserLog();
+        $userLog->user_id = $user->id;
+        $userLog->ip = \Yii::$app->request->getUserIP();
+        $userLog->content = \Yii::$app->request->getUserAgent();
+        $userLog->type = \common\models\UserLog::type_login;
+        $userLog->save(false);
 
         $publicUser->auth_key = JWT::encode(
             [

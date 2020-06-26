@@ -6,9 +6,55 @@ namespace backend\controllers;
 
 use common\models\Paging;
 use common\models\User;
+use common\models\UserLog;
 
 class UserController extends BaseController
 {
+    public $protectActions = ['change-pass', 'login-history'];
+
+    function actionAdvanceLoginHistory()
+    {
+        $sort = \Yii::$app->request->get('sort');
+        $sortBy = \Yii::$app->request->get('sort_by');
+        $ip = \Yii::$app->request->get('ip');
+
+        $userId = \Yii::$app->request->get('user_id');
+        $pagingData = new Paging();
+        $pagingData->handleByData(\Yii::$app->request->get());
+        $userCond = UserLog::find()->where(['type' => UserLog::type_login]);
+        if (!empty($userId)) {
+            $userCond->andWhere(['user_id' => $userId]);
+        }
+
+        if (!empty($ip)) {
+            $userCond->andWhere(['LIKE', 'ip', $ip]);
+        }
+
+        $pagingData->setByQuery($userCond);
+
+        if (!empty($sort) && !empty($sortBy)) {
+            if (in_array($sortBy, ['id'])) {
+                $sort = $sort == 'ASC' ? 'ASC' : 'DESC';
+            }
+            $userCond->orderBy("$sortBy $sort");
+        }
+
+        $logs = $userCond->with('user')->asArray()->all();
+        return $this->response(true, $logs, null, null, 200, $pagingData);
+
+    }
+
+    function actionLoginHistory()
+    {
+        $pagingData = new Paging();
+        $pagingData->handleByData(\Yii::$app->request->get());
+        $userCond = UserLog::find()->where(['type' => UserLog::type_login]);
+        $pagingData->setByQuery($userCond);
+        $logs = $userCond->asArray()->orderBy('id DESC')->all();
+        return $this->response(true, $logs, null, null, 200, $pagingData);
+
+    }
+
     function actionChangePass()
     {
         $changePassForm = \Yii::$app->request->post('changePassForm');
@@ -67,6 +113,7 @@ class UserController extends BaseController
 
         $dbUser->fullname = $user['fullname'];
         $dbUser->username = $user['username'];
+        $dbUser->base_role = $user['base_role'];
         $dbUser->email = $user['email'];
 //        $dbUser->phone = $user['phone'];
         $dbUser->status = $user['status'] == User::status_active ? User::status_active : User::status_suspended;
@@ -94,8 +141,9 @@ class UserController extends BaseController
     {
         $pagingData = new Paging();
         $sort = \Yii::$app->request->get('sort');
-        $status = \Yii::$app->request->get('status');
         $sortBy = \Yii::$app->request->get('sort_by');
+        $status = \Yii::$app->request->get('status');
+        $role = \Yii::$app->request->get('role');
 
         $keyword = \Yii::$app->request->get('keyword');
         $pagingData->handleByData(\Yii::$app->request->get());
@@ -114,6 +162,10 @@ class UserController extends BaseController
 
         if (!empty($status)) {
             $userCond->andWhere(['status' => $status]);
+        }
+
+        if (trim($role) != '') {
+            $userCond->andWhere(['base_role' => $role]);
         }
 
         $pagingData->setByQuery($userCond);

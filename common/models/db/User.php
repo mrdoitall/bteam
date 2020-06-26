@@ -9,10 +9,10 @@ use Yii;
  *
  * @property int $id
  * @property string|null $uuid
+ * @property string|null $base_role
  * @property string|null $status
  * @property string|null $phone
  * @property string $email
- * @property string|null $base_role
  * @property string|null $auth_key
  * @property string|null $fullname
  * @property string $username
@@ -21,15 +21,17 @@ use Yii;
  * @property string|null $password_salt
  * @property string|null $password_reset_token
  * @property string|null $verification_token
+ * @property int|null $last_get_account_at
  * @property int|null $created_at
  * @property int|null $updated_at
  *
  * @property AccessAssign[] $accessAssigns
- * @property CustomerService[] $customerServices
- * @property CustomerServiceLog[] $customerServiceLogs
- * @property SubDomain[] $subDomains
- * @property Subscription[] $subscriptions
+ * @property Account[] $accounts
+ * @property Account[] $accounts0
+ * @property AccountCookie[] $accountCookies
+ * @property AccountProcessLog[] $accountProcessLogs
  * @property UserAccessRole[] $userAccessRoles
+ * @property UserLog[] $userLogs
  */
 class User extends \common\models\ActiveRecord
 {
@@ -48,8 +50,8 @@ class User extends \common\models\ActiveRecord
     {
         return [
             [['email', 'username'], 'required'],
-            [['created_at', 'updated_at'], 'integer'],
-            [['uuid', 'status', 'base_role', 'username', 'user_groups'], 'string', 'max' => 50],
+            [['last_get_account_at', 'created_at', 'updated_at'], 'integer'],
+            [['uuid', 'base_role', 'status', 'username', 'user_groups'], 'string', 'max' => 50],
             [['phone'], 'string', 'max' => 11],
             [['email', 'fullname', 'password_hash', 'password_reset_token', 'verification_token'], 'string', 'max' => 255],
             [['auth_key'], 'string', 'max' => 200],
@@ -65,10 +67,10 @@ class User extends \common\models\ActiveRecord
         return [
             'id' => 'ID',
             'uuid' => 'Uuid',
+            'base_role' => 'Base Role',
             'status' => 'Status',
             'phone' => 'Phone',
             'email' => 'Email',
-            'base_role' => 'Base Role',
             'auth_key' => 'Auth Key',
             'fullname' => 'Fullname',
             'username' => 'Username',
@@ -77,6 +79,7 @@ class User extends \common\models\ActiveRecord
             'password_salt' => 'Password Salt',
             'password_reset_token' => 'Password Reset Token',
             'verification_token' => 'Verification Token',
+            'last_get_account_at' => 'Last Get Account At',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];
@@ -93,43 +96,43 @@ class User extends \common\models\ActiveRecord
     }
 
     /**
-     * Gets query for [[CustomerServices]].
+     * Gets query for [[Accounts]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getCustomerServices()
+    public function getAccounts()
     {
-        return $this->hasMany(CustomerService::className(), ['customer_id' => 'id']);
+        return $this->hasMany(Account::className(), ['process_user_id' => 'id']);
     }
 
     /**
-     * Gets query for [[CustomerServiceLogs]].
+     * Gets query for [[Accounts0]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getCustomerServiceLogs()
+    public function getAccounts0()
     {
-        return $this->hasMany(CustomerServiceLog::className(), ['customer_id' => 'id']);
+        return $this->hasMany(Account::className(), ['created_user_id' => 'id']);
     }
 
     /**
-     * Gets query for [[SubDomains]].
+     * Gets query for [[AccountCookies]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getSubDomains()
+    public function getAccountCookies()
     {
-        return $this->hasMany(SubDomain::className(), ['customer_id' => 'id']);
+        return $this->hasMany(AccountCookie::className(), ['user_id' => 'id']);
     }
 
     /**
-     * Gets query for [[Subscriptions]].
+     * Gets query for [[AccountProcessLogs]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getSubscriptions()
+    public function getAccountProcessLogs()
     {
-        return $this->hasMany(Subscription::className(), ['customer_id' => 'id']);
+        return $this->hasMany(AccountProcessLog::className(), ['process_user_id' => 'id']);
     }
 
     /**
@@ -140,5 +143,15 @@ class User extends \common\models\ActiveRecord
     public function getUserAccessRoles()
     {
         return $this->hasMany(UserAccessRole::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[UserLogs]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUserLogs()
+    {
+        return $this->hasMany(UserLog::className(), ['user_id' => 'id']);
     }
 }
