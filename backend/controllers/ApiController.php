@@ -19,6 +19,7 @@ class ApiController extends BaseController
         $pageCount = \Yii::$app->request->post('page_count');
         $bmCount = \Yii::$app->request->post('bm_count');
         $note = \Yii::$app->request->post('note');
+        $lock = \Yii::$app->request->post('lock');
 
         if (empty($uid)) {
             return $this->responseMessage(false, 'Please enter uuid');
@@ -45,6 +46,15 @@ class ApiController extends BaseController
         }
         $account->cookie = $cookie;
         $account->ip = $ip;
+
+        if ($lock != null) {
+            if ($lock == 1 || $lock == true) {
+                $account->status = Account::status_inactive;
+            } else {
+                $account->status = Account::status_active;
+            }
+        }
+
         if (!empty($note)) {
             $account->note = $note;
         }
