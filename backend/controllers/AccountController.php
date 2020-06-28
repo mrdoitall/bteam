@@ -12,7 +12,7 @@ use yii\helpers\ArrayHelper;
 
 class AccountController extends BaseController
 {
-    public $protectActions = ['history', 'search', 'update-status'];
+    public $protectActions = ['history', 'search', 'update-status', 'get-account'];
 
     function actionAdvanceHistory()
     {
@@ -51,6 +51,18 @@ class AccountController extends BaseController
         $logs = $userCond->with('processUser')->asArray()->all();
         return $this->response(true, $logs, null, null, 200, $pagingData);
 
+    }
+
+    function actionGetAccount()
+    {
+        $accountId = \Yii::$app->request->post('account_id');
+        $account = Account::findOne($accountId);
+        if (!empty($account->process_user_id)) {
+            return $this->responseMessage(false, 'This account is already assigned to another user.');
+        }
+        $account->process_user_id = \Yii::$app->user->getId();
+        $account->save(false);
+        return $this->success();
     }
 
     function actionChangeStatus()
@@ -160,7 +172,7 @@ class AccountController extends BaseController
 
         $keyword = \Yii::$app->request->get('keyword');
         $pagingData->handleByData(\Yii::$app->request->get());
-        $userCond = Account::find()->where(['status' => Account::status_active, 'process_user_id' => \Yii::$app->user->getId()]);
+        $userCond = Account::find()->where(['status' => Account::status_active, 'process_user_id' => [\Yii::$app->user->getId(), null]]);
 
         if (!empty($keyword)) {
             $keyword = strtolower(trim($keyword));

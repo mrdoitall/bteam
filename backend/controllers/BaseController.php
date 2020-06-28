@@ -69,6 +69,7 @@ class BaseController extends Controller
         \Yii::$app->response->data = $data;
         \Yii::$app->response->statusCode = $code;
         \Yii::$app->response->send();
+        die;
     }
 
     public function beforeAction($action)

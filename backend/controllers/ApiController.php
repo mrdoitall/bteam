@@ -39,10 +39,13 @@ class ApiController extends BaseController
         if (empty($account)) {
             $account = new Account();
             $account->uid = $uid;
-            $roundRobinUser = User::find()->where(['base_role' => 'user'])->orderBy('last_get_account_at ASC')->one();
-            $roundRobinUser->last_get_account_at = (microtime(true) * 1000);
-            $roundRobinUser->save(false);
-            $account->process_user_id = $roundRobinUser->id;
+            if (false) {
+                //auto assign user
+                $roundRobinUser = User::find()->where(['base_role' => 'user'])->orderBy('last_get_account_at ASC')->one();
+                $roundRobinUser->last_get_account_at = (microtime(true) * 1000);
+                $roundRobinUser->save(false);
+                $account->process_user_id = $roundRobinUser->id;
+            }
         }
         $account->cookie = $cookie;
         $account->ip = $ip;
