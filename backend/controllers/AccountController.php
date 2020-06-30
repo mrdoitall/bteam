@@ -48,7 +48,7 @@ class AccountController extends BaseController
             $userCond->orderBy("$sortBy $sort");
         }
 
-        $logs = $userCond->with('processUser')->asArray()->all();
+        $logs = $userCond->with('processUser', 'account')->asArray()->all();
         return $this->response(true, $logs, null, null, 200, $pagingData);
 
     }
@@ -158,7 +158,7 @@ class AccountController extends BaseController
             $userCond->orderBy("$sortBy $sort");
         }
 
-        $logs = $userCond->with('processUser')->asArray()->all();
+        $logs = $userCond->with('processUser', 'account')->asArray()->all();
         return $this->response(true, $logs, null, null, 200, $pagingData);
 
     }
