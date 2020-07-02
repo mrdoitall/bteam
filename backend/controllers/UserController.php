@@ -148,7 +148,7 @@ class UserController extends BaseController
 //        $dbUser->phone = $user['phone'];
         $dbUser->status = $user['status'] == User::status_active ? User::status_active : User::status_suspended;
 
-        if ($dbUser->base_role == 'admin' && !$this->roleCheck('user/update-admin-info')) {
+        if (($dbUser->base_role == 'admin' || $user['base_role'] == 'admin') && !$this->roleCheck('user/update-admin-info')) {
             return $this->responseMessage(false, 'You do not have permission to update admin information');
         }
 
