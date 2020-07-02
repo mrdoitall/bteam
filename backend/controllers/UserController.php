@@ -91,6 +91,11 @@ class UserController extends BaseController
         return $this->response(true, null, 'Password successfully changed, please login again');
     }
 
+    function actionUpdateAdminInfo()
+    {
+        return $this->success();
+    }
+
     function actionUpdate()
     {
         $user = \Yii::$app->request->post('user');
@@ -115,6 +120,7 @@ class UserController extends BaseController
         }
 
         $dbUser = new User();
+
         if (!empty($user['id'])) {
             $dbUser = User::findOne($user['id']);
             if (empty($dbUser)) {
@@ -141,6 +147,10 @@ class UserController extends BaseController
         $dbUser->email = $user['email'];
 //        $dbUser->phone = $user['phone'];
         $dbUser->status = $user['status'] == User::status_active ? User::status_active : User::status_suspended;
+
+        if ($dbUser->base_role == 'admin' && !$this->roleCheck('user/update-admin-info')) {
+            return $this->responseMessage(false, 'You do not have permission to update admin information');
+        }
 
         if ((isset($user['changePassword']) && $user['changePassword'] == true) || empty($user['id'])) {
 
