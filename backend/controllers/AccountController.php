@@ -109,7 +109,12 @@ class AccountController extends BaseController
 
         if (!empty($keyword)) {
             $keyword = strtolower(trim($keyword));
-            $userCond->andWhere(['LIKE', 'uid', $keyword]);
+            $userCond->andWhere([
+                'OR',
+                ['LIKE', 'uid', $keyword],
+                ['LIKE', 'ip', $keyword],
+                ['LIKE', 'note', $keyword],
+            ]);
         }
 
         if (trim($lastStatus) != '') {
@@ -185,7 +190,12 @@ class AccountController extends BaseController
 
         if (!empty($keyword)) {
             $keyword = strtolower(trim($keyword));
-            $userCond->andWhere(['LIKE', 'uid', $keyword]);
+            $userCond->andWhere([
+                'OR',
+                ['LIKE', 'uid', $keyword],
+                ['LIKE', 'ip', $keyword],
+                ['LIKE', 'note', $keyword],
+            ]);
         }
 
         if (trim($status) != '') {
