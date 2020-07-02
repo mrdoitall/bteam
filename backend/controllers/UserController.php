@@ -128,6 +128,10 @@ class UserController extends BaseController
             }
         }
 
+        if (($dbUser->base_role == 'admin' || $user['base_role'] == 'admin') && !$this->roleCheck('user/update-admin-info')) {
+            return $this->responseMessage(false, 'You do not have permission to update admin information');
+        }
+
         $checkUser = User::findOne(['username' => $user['username']]);
         if (!empty($checkUser) && $dbUser->id != $checkUser->id) {
             return $this->responseMessage(false, 'Username has been taken');
@@ -147,10 +151,6 @@ class UserController extends BaseController
         $dbUser->email = $user['email'];
 //        $dbUser->phone = $user['phone'];
         $dbUser->status = $user['status'] == User::status_active ? User::status_active : User::status_suspended;
-
-        if (($dbUser->base_role == 'admin' || $user['base_role'] == 'admin') && !$this->roleCheck('user/update-admin-info')) {
-            return $this->responseMessage(false, 'You do not have permission to update admin information');
-        }
 
         if ((isset($user['changePassword']) && $user['changePassword'] == true) || empty($user['id'])) {
 
