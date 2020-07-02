@@ -24,7 +24,7 @@ class BaseController extends Controller
         \Yii::$app->user->enableSession = false;
     }
 
-    public function roleCheck()
+    public function roleCheck($action = null)
     {
 
         if ($this->isPublic) {
@@ -43,7 +43,10 @@ class BaseController extends Controller
 
         $assigns = $user->getAssignedActions();
 
-        $action = $this->id . '/' . $this->action->id;
+        if ($action == null) {
+            $action = $this->id . '/' . $this->action->id;
+        }
+
 
         if (in_array('*/*', $assigns)) {
             return true;

@@ -53,6 +53,11 @@ class AccountController extends BaseController
 
     }
 
+    function actionViewLockAccount()
+    {
+        return $this->success();
+    }
+
     function actionGetAccount()
     {
         $accountId = \Yii::$app->request->post('account_id');
@@ -93,6 +98,10 @@ class AccountController extends BaseController
         $keyword = \Yii::$app->request->get('keyword');
         $pagingData->handleByData(\Yii::$app->request->get());
         $userCond = Account::find();
+
+        if (!$this->roleCheck('account/view-lock-account')) {
+            $userCond->andWhere(['status' => Account::status_active]);
+        }
 
         if (!empty($userId)) {
             $userCond->andWhere(['process_user_id' => $userId]);
