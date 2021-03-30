@@ -15,6 +15,8 @@ class ApiController extends BaseController
         $uid = \Yii::$app->request->post('uid');
         $cookie = \Yii::$app->request->post('cookie');
         $ip = \Yii::$app->request->post('ip');
+        $appName = \Yii::$app->request->post('app_name');
+        $useragent = \Yii::$app->request->post('useragent');
 
         $pageCount = \Yii::$app->request->post('page_count');
         $bmCount = \Yii::$app->request->post('bm_count');
@@ -67,6 +69,9 @@ class ApiController extends BaseController
         if (!empty($bmCount)) {
             $account->bm_count = $bmCount;
         }
+
+        $account->app_name = $appName;
+        $account->useragent = $useragent;
 
         $account->save(false);
 
